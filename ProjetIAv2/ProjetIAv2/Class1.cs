@@ -1,6 +1,7 @@
 ﻿using System;
 using System.CodeDom;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -152,11 +153,17 @@ namespace ProjetIA2022
             partie) et on prend en compte pour l'environnement B les cases énergies qui auront une meilleur note
             */
 
-            //IL FAUT UNE HEURISTIQUE POUR CHAQUE ENVIRONNEMNT !!!
+            //return CostEnvironnementA();
+            return CostEnvironnementB();
+            
 
-            //Prendre en compte le temps de déplacement !!!!
 
-            //HEURISTIQUE POUR L'ENVIRONNEMENT A :
+        }
+
+        //HEURISTIQUE POUR L'ENVIRONNEMENT A :
+        private double CostEnvironnementA()
+        {
+            
             // Calcule de la distance eucliède à l'arrivée 
             double distanceToGoal = Math.Sqrt(Math.Pow(Form1.xfinal - x, 2) + Math.Pow(Form1.yfinal - y, 2));
 
@@ -167,8 +174,42 @@ namespace ProjetIA2022
 
             // Le cout total de l'heuristique correspond à l'addition de la distance et de l'energie
             return distanceToGoal + energyPenalty;
+        }
 
+        //HEURISTIQUE POUR L'ENVIRONNEMENT B :
+        private double CostEnvironnementB()
+        {
 
+            // Calculate Euclidean distance to the goal
+            double distanceToGoal = Math.Sqrt(Math.Pow(Form1.xfinal - x, 2) + Math.Pow(Form1.yfinal - y, 2));
+            double cout = distanceToGoal * Form1.tempscasedepartementale;
+
+            // If energy is sufficient to reach the goal directly, no need for a charging station
+            double energyNeeded = distanceToGoal * Form1.consoparcase;
+            if (energy >= energyNeeded)
+            {
+                return cout; // No need for recharge, return direct time
+            }
+
+            // Find the nearest charging station
+            double minDistanceToStation = double.MaxValue;
+            foreach (Point station in Form1.powerstations)
+            {
+                double distanceToStation = Math.Sqrt(Math.Pow(station.X - x, 2) + Math.Pow(station.Y - y, 2));
+                if (distanceToStation < minDistanceToStation)
+                {
+                    minDistanceToStation = distanceToStation;
+                }
+            }
+
+            // Calculate the time to recharge fully
+            double rechargeTime = (100 - energy) * Form1.tempscaserecharge / 100.0;
+
+            // Total heuristic cost: time to station + recharge time + time from station to goal
+            double timeToStation = minDistanceToStation * Form1.tempscasedepartementale;
+            double totalCost = timeToStation + rechargeTime + cout;
+
+            return totalCost;
         }
 
         public override string ToString()
