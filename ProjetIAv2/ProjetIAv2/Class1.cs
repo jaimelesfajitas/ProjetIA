@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace ProjetIA2022
 {
-    public class Node2 : GenericNode 
+    public class Node2 : GenericNode
     {
         public int x;
         public int y;
         public double energy;  // énergie restante de la voiture
-                            // entre 0 et 100 ; doit toujours être positif; 
+                               // entre 0 et 100 ; doit toujours être positif; 
 
-      // Méthodes abstraites, donc à surcharger obligatoirement avec override dans une classe fille
-      // version 1, fonctionnelle, mais pas optimale
+        // Méthodes abstraites, donc à surcharger obligatoirement avec override dans une classe fille
+        // version 1, fonctionnelle, mais pas optimale
         public override bool IsEqual(GenericNode N2)
         {
             Node2 N2bis = (Node2)N2;   // N2bis est le potentiel nouveau noeud
@@ -32,8 +32,8 @@ namespace ProjetIA2022
         // de l'autre ; en général, cela n'arrive pas, mais ... solution abandonnée pour
         // plus de sûreté
 
-       // public override bool IsEqual(GenericNode N2)
-       // {
+        // public override bool IsEqual(GenericNode N2)
+        // {
         //    Node2 N2bis = (Node2)N2;   // N2bis est le potentiel nouveau noeud
         //    if ((x == N2bis.x) && (y == N2bis.y))
         //        if (energy >= N2bis.energy)
@@ -50,12 +50,12 @@ namespace ProjetIA2022
             Node2 N2bis = (Node2)N2;     // On "cast" car on sait que c'est un objet de la classe Node2.
 
             if ((N2bis.y == y) && (N2bis.x == x))
-                {
+            {
                 // On est au même endroit, c'est pour refaire le
                 // plein d'énergie, on reste ici un temps proportionnel à la qté
                 // d'énergie manquante
-                return ((100-energy)*Form1.tempscaserecharge/100.0);
-               }
+                return ((100 - energy) * Form1.tempscaserecharge / 100.0);
+            }
             else
             {
                 double cost;
@@ -69,7 +69,7 @@ namespace ProjetIA2022
                     cost = Form1.tempscasenationale;   // cas particulier, on met un coût moyen;
                 else
                     cost = 1000000;   // Ne doit jamais arriver ! Si on arrive là
-                                        // c'est une erreur
+                                      // c'est une erreur
 
                 if ((N2bis.y == y) || (N2bis.x == x))
                     return cost;   // même ligne ou colonne, on se déplace d'1 case
@@ -86,7 +86,7 @@ namespace ProjetIA2022
         {
             List<GenericNode> lsucc = new List<GenericNode>();
 
-            for (int dx=-1; dx <= 1; dx++)
+            for (int dx = -1; dx <= 1; dx++)
             {
                 for (int dy = -1; dy <= 1; dy++)
                 {
@@ -111,7 +111,7 @@ namespace ProjetIA2022
 
             }
             // Dernier cas, on est sur une case recharge !
-            if (Form1.matrice[x,y] == Form1.recharge)
+            if (Form1.matrice[x, y] == Form1.recharge)
                 if (energy < 100)   // Pas totalement chargé
                 {
                     Node2 newnode2 = new Node2();
@@ -140,20 +140,41 @@ namespace ProjetIA2022
             // Accès à certaines constantes :
             // Form1.tempscaseautoroute  : 10mn par déplacement d'1 case sur autoroute
             //  Form1.tempscasenationale  : 15mn par déplacement d'1 case sur nationale
-           //   Form1.tempscasedepartementale : 20mn pour déplacement sur départementale
-           //   Form1.tempscaserecharge = 30; // 30mn pour passer de 0 à 100 en énergie
+            //   Form1.tempscasedepartementale : 20mn pour déplacement sur départementale
+            //   Form1.tempscaserecharge = 30; // 30mn pour passer de 0 à 100 en énergie
             // et proportionnellement moins si on a déjà de l'énergie
             // Form1.matrice[x,y] indique le type de case : 1 pour départementale, 2 pour nationale
             // 3 pour autoroute et 8 pour recharge ; -1 dans la matrice est une case inaccessible
-    
-            return ( 0 );
-           
+
+            /*
+            Mon heuristique : Caculer des notes pour chaques noeuds et on se dirige prioritairement
+            vers la meilleur note du noeud (on peut calculer la note des noeuds a l'avance en début 
+            partie) et on prend en compte pour l'environnement B les cases énergies qui auront une meilleur note
+            */
+
+            //IL FAUT UNE HEURISTIQUE POUR CHAQUE ENVIRONNEMNT !!!
+
+            //Prendre en compte le temps de déplacement !!!!
+
+            //HEURISTIQUE POUR L'ENVIRONNEMENT A :
+            // Calcule de la distance eucliède à l'arrivée 
+            double distanceToGoal = Math.Sqrt(Math.Pow(Form1.xfinal - x, 2) + Math.Pow(Form1.yfinal - y, 2));
+
+            double cout = distanceToGoal * Form1.tempscasedepartementale;
+
+            // On prend en compte le facteur energy
+            double energyPenalty = (100 - energy) * Form1.consoparcase;
+
+            // Le cout total de l'heuristique correspond à l'addition de la distance et de l'energie
+            return distanceToGoal + energyPenalty;
+
+
         }
 
         public override string ToString()
         {
-            return Convert.ToString(x)+","+ Convert.ToString(y)+","
-                   +Convert.ToString(Math.Round(energy));
+            return Convert.ToString(x) + "," + Convert.ToString(y) + ","
+                   + Convert.ToString(Math.Round(energy));
         }
     }
 }
