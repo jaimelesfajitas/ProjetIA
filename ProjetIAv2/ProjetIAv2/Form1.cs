@@ -133,7 +133,7 @@ namespace ProjetIA2022
             SolidBrush brush0 = new SolidBrush(Color.White);   // case interdite non routière
             SolidBrush brush1 = new SolidBrush(Color.Green);  // Couleur grise pour départementale
             SolidBrush brush2 = new SolidBrush(Color.Red);  //  Rouge pour nationales      
-            SolidBrush brush3 = new SolidBrush(Color.Blue);  //  Rouge pour nationales     
+            SolidBrush brush3 = new SolidBrush(Color.Blue);  //  Bleu pour autoroute     
             SolidBrush brush4 = new SolidBrush(Color.Yellow);  // jaune pour recharge   
             int largeur = pictureBox1.Width / nbcolonnes;
             int hauteur = pictureBox1.Height / nbcolonnes;

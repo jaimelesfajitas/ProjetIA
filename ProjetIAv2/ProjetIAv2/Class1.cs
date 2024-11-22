@@ -154,8 +154,8 @@ namespace ProjetIA2022
             */
 
             //return CostEnvironnementA();
-            return CostEnvironnementB();
-            
+            //return CostEnvironnementB();
+            return CostEnvironementC();
 
 
         }
@@ -211,6 +211,50 @@ namespace ProjetIA2022
 
             return totalCost;
         }
+
+        private double CostEnvironementC()
+        {
+            // Calculate Euclidean distance to the goal
+            double distanceToGoal = Math.Sqrt(Math.Pow(Form1.xfinal - x, 2) + Math.Pow(Form1.yfinal - y, 2));
+
+            // Assume the best-case road type for cost estimation (autoroute, as it is the fastest)
+            double minRoadCost = Math.Min(Form1.tempscaseautoroute,Math.Min(Form1.tempscasenationale, Form1.tempscasedepartementale));
+
+            double estimatedGoalTime = distanceToGoal * minRoadCost;
+
+            // If energy suffices to reach the goal directly
+            double energyNeeded = distanceToGoal * Form1.consoparcase;
+            if (energy >= energyNeeded)
+            {
+                return estimatedGoalTime; // No need for a charging station
+            }
+
+            // Find the nearest charging station
+            double minTimeToStation = double.MaxValue;
+            foreach (Point station in Form1.powerstations)
+            {
+                double distanceToStation = Math.Sqrt(Math.Pow(station.X - x, 2) + Math.Pow(station.Y - y, 2));
+
+                // Estimate the time to the station using the best-case road cost
+                double timeToStation = distanceToStation * minRoadCost;
+
+                // Update the minimum time to station
+                if (timeToStation < minTimeToStation)
+                {
+                    minTimeToStation = timeToStation;
+                }
+            }
+
+            // Calculate recharge time
+            double rechargeTime = (100 - energy) * Form1.tempscaserecharge / 100.0;
+
+            // Total heuristic cost: time to station + recharge time + time from station to goal
+            double totalCost = minTimeToStation + rechargeTime + estimatedGoalTime;
+
+            return totalCost;
+        }
+
+
 
         public override string ToString()
         {
